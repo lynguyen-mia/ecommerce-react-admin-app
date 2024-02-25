@@ -18,9 +18,12 @@ const LiveChat = () => {
 
   // Check user expiration
   async function checkSession() {
-    const res = await fetch("https://ecommerce-node-app-sfau.onrender.com/admin/check-session", {
-      credentials: "include"
-    });
+    const res = await fetch(
+      "https://ecommerce-node-app-sfau.onrender.com/admin/check-session",
+      {
+        credentials: "include"
+      }
+    );
     if (res.status === 401) {
       localStorage.removeItem("adminUser");
     }
@@ -33,9 +36,12 @@ const LiveChat = () => {
     // Fetch chat rooms from server
     async function fetchRooms() {
       // Fetch room number from server
-      const res = await fetch("https://ecommerce-node-app-sfau.onrender.com/admin/chat/roomlist", {
-        credentials: "include"
-      });
+      const res = await fetch(
+        "https://ecommerce-node-app-sfau.onrender.com/admin/chat/roomlist",
+        {
+          credentials: "include"
+        }
+      );
 
       if (res.status === 401) {
         window.alert("Your session has expired, please log in again");
@@ -68,13 +74,26 @@ const LiveChat = () => {
       // add new room to room list
       setRoomList((prevState) => [...prevState, data.roomId]);
     };
-    const handleChatRes = (data) => {
+
+    const handleChatRes = async (data) => {
       setRoomWithNewChat(data.roomId);
       if (curRoom.roomId === data.roomId) {
         // messages = [{content, name, role, userId}, {}...]
         setMessages((prevState) => [...prevState, data.message]);
       }
+      // check session expiration
+      const res = await fetch(
+        "https://ecommerce-node-app-sfau.onrender.com/admin/check-session",
+        {
+          credentials: "include"
+        }
+      );
+      if (res.status === 401) {
+        window.alert("Your session has expired. Please sign in again.");
+        return navigate("/auth");
+      }
     };
+
     const endChat = (data) => {
       if (curRoom.roomId === data.roomId) {
         setMessages([]);
@@ -131,15 +150,7 @@ const LiveChat = () => {
     }
   }
 
-  async function sendMessage() {
-    const res = await fetch("https://ecommerce-node-app-sfau.onrender.com/admin/check-session", {
-      credentials: "include"
-    });
-    if (res.status === 401) {
-      window.alert("Your session has expired. Please sign in again.");
-      return navigate("/auth");
-    }
-
+  function sendMessage() {
     if (!curRoom) {
       messageRef.current.value = "";
       return window.alert("There's no active room chat right now.");
@@ -163,7 +174,7 @@ const LiveChat = () => {
         }
 
         const roomId = e.target.value;
-        // console.log(roomId);
+
         const res = await fetch(
           `https://ecommerce-node-app-sfau.onrender.com/admin/search/chat?id=${roomId}`,
           { credentials: "include" }
@@ -287,12 +298,13 @@ const LiveChat = () => {
                   onKeyDown={onSendMessage}
                 />
               </div>
-              <div
+              <a
+                href="#"
                 onClick={sendMessage}
-                className="col col-1 d-flex justify-content-center"
+                className="col col-1 d-flex justify-content-center pe-auto"
               >
                 <i className="bi bi-send-fill fs-3"></i>
-              </div>
+              </a>
             </div>
           </div>
         </div>
